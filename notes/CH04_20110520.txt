@@ -1,0 +1,155 @@
+Chapter 4:  CRUD Web Services
+
+RAIL Restful URI Templates (http://ruby.railstutorial.org/chapters/modeling-and-viewing-users-one?version=2.3#sec:6.4)
+There is another good one at:  http://guides.rubyonrails.org/routing.html
+
+This chapter builds out the use of HTTP Verbs adding PUT and DELETE to GET and POST to support end-to-end Create, Read, Update, and Delete.  CRUD.
+
+"HTTP as an Application Protocol rather than just a Transport Protocol"
+
+Orders are Business Entities
+  /* I was reminded of Steve Yegge's "Land of Nouns" rant:  http://steve-yegge.blogspot.com/2006/03/execution-in-kingdom-of-nouns.html */
+
+  Restbucks Ordering Service implements a protocol to move Orders through their lifecycle
+
+  POST - Create a new Order
+   GET - Retrieve an Order's details
+   PUT - Update an Order
+DELETE - Delete an Order
+
+/* Figure 4-2 is not helpful.  He's going to fill 40 pages with this? */
+/* Note the URIs in figure 4-2, though */
+
+CRUD is Level 2 in Richardson's Maturity Model /* Is this going to be like the Normal Forms of Databases? Where 5th Normal Form is perfection, but most implementations stop at 3rd Normal Form */ due to its use of both HTTP and URIs.
+
+P57:  "...the contract that CRUD services...expose to customers...".  Like any API, once its published, it might as well be a contract.
+
+Restful CRUD services are composed of the following 3 elements:
+  1.  Single Concrete URI
+  2.  Single URI template
+  3.  Four HTTP verbs
+
+Table 4-1 sums it up in the form Verb, URI Template, Use.
+
+/* Note that POST is used for creation and the server determines the URI of the created resource.  This is convention, not gospel.  It does not appear that this, in and of itself, moves you up the Richardson Maturity Model pyramid. */
+
+/* More "best practices" here in the form of Postel's Law 'be conservative in what you do; be liberal in what you accept from others' */
+
+/* NOTE Page 60, return status of 201 (I expected just 200) AND the use of a Header to communicate the URI that the Order resource now lives on.  Interesting in that this isn't "simple HTTP" as Headers and their usage is a more "advanced" topic in HTTP. */
+HTTP/1.1 201 Created
+Content-Length: 267
+Content-Type: application/xml
+Date: Wed, 19 Nov 2008 21:45:03 GMT
+Location: http://restbucks.com/order/1234
+
+/* Note also that the XML that is returned DOES NOT HAVE THE ORDER ID IN IT!?!  It is just an echo of the request.  The only way to know your Order ID on a create is to decode that header.  I think I don't like this. */
+
+Restbucks return codes (he plans to build these out later):
+  400 Bad Request
+    - we detected a malformed request to the service.  Client can do nothing but correct the format of the request.
+  500 Internal Server Error
+    - something went wrong, we don't know what it was.  Client can only retry as, whatever went wrong, was supposedly server-side.
+
+"...it is the consumer's job to figure out what to do next."
+  if 400.  The client should not attempt retry without fixing the format of the request.  In other words, don't retry as "if it didn't work the first time, it won't work now".
+
+/* NOTE the <!-- Missing drink type --> error messaging on Page 62.  Interesting, but it doesn't feel real consistent with the Location: header.  Why aren't the details of the failure also a Header?  Is it "bad form" or just an implementation/style detail? */
+
+/* Credibility problem on Example 4-5.  I don't think that will even compile!  Further, I see no provision there for the <!-- Missing drink type -->.  Hmmm. */
+
+"GET is used to retrieve state information - resource representations - from services".
+
+/* Hmm.  P64, GET response.  Note that there is still NO ID in the response.  I really don't like this.  Id is totally one of the attributes of an order.  Why can't it stand "first class"?  I want an explanation.  By Page 74 he asserts this is keeping with the DRY principal (Don't Repeat Yourself), but I don't think I buy that.  I mean, I want to be able to compose these things into higher level transactions and the like, it feels like this "id is alway special" will keep me from doing this. */
+
+/* We see further support for "GET is safe...but that doesn't mean that the resource hasn't changed" assertion */
+
+P65:  "A client can GET a representation many times over...of coure, the resource may still change between requests for other reasons..."
+
+/* AHHH!  There is no <status> in 4-7 but by 4-8 there is?  Looks like Richardson's Level 2 Maturity models is less than mature.  <status> is now optional although an Order allegedly has a life-cycle.  I'm pretty sure that this is a bug, but it doesn't appear in the official errata.  */
+
+/* Using the HTTP error codes, especially 404 is another step, I believe, in the direction of "HTTP as an Application Protocol".  P66, Example 4-10 */
+
+/* By page 66, the author is seeing things my way.  Note the footnote about "helpful to the consumer...error messages in the HTTP body." */
+
+/* Example 4-12 is interesting in that it has a fragment of the URI template in it ala. @Path("/{orderId}").  On the other hand, where is the Header getting set?  Or IS the Header getting set? */
+
+P68:  Richardson and Ruby in "RESTful Web Services"...
+  Use POST to create a resource identifies by a service-generated URI.
+  Use POST to append a resource to a collection indentified by a service-generated URI.
+  Use PUT  TO create OR overwrite a resource identified by a URI computed by the client.
+
+/* HTTP spec, apparently, asserts that a successful PUT request won't create a new resource or produce a new URI.  Wow, slippery slope, the URI won't be new BUT the resource it identifies may be (via the PUT...create OR overwrite loophole)? */
+
+P70:  "PUT expects the entire resource to be supplied to the server, rather than just changes..."
+
+/* NOTE the PATCH proposal on P70. */
+
+/* Uh...200 vs 204? */
+
+/* HERE COMES 409 Conflict on P71.  George will like this. */
+
+!!!! PUT is idempotent - because service-side state is replaced-wholesale by consumer-side state. /* Did we talk about this?  Should we?  Does "replaced-wholesale" mean the whole record goes across the wire all the time?!?  The NOTE on P72 clears this up...maybe. */
+
+2011-05-21, P72 "Implementing update with PUT"
+
+/* The WCF is interesting and doesn't really look that different from the JAX-RS Example 4-12.  By Example 4-18 the "boilerplate" is looking a little excessive.  Example 4-19 looks downright chatty (or maybe I'm getting used to Ruby) */
+
+DELETE means that the client is no longer interested in the resource (he suggests that the service can do what it wants).
+
+/* 405 Method Not Allowed response when URI is legit but the resource is in a state where it can't be Deleted is interesting, appropriate (I think), and another example of HTTP as an application protocol above and beyond HTTP as transport */
+
+!! P77, NOTE, "The Allow header can be used to convey a comma-separated list of verbs..." is an intesting concept.  Should this be going back with every GET as well or is this slipping into the realm of meta-data?
+
+         Safe | Idempotent
+       +------+------------+
+   GET |  x   |     x      |
+   PUT |      |     x      |
+DELETE |      |     x      |
+  POST |      |            |
+       +------+------------+
+
+Wikipedia:  Idempotence is the property of certain operations in mathematics and computer science, that they can be applied multiple times without changing the result.
+
+/* The more we talk about Idempotent the less I understand it!  DELETE works only once, subsequent deletes fail.  From the server's perspective, the result of the 2nd and beyond one is different from the result of the first one.  How can this be described as "idempotent"? */
+
+P78:  Aligning Resource State
+
+HTTP provides a simple and powerful mechanism for aligning resource state...in the form of entity tags and conditional request headers.
+  ETag - opaque string token that a server associates with a resource to uniquely identify the state of the resource over its lifetime
+       - the ETag changes whenever the resource changes /* is this a version identifier? */
+       - ETags are used to compare entities from the same resource.
+       - If-Match and If-None-Match request headers allow the server to test preconditions related to the current resource state BEFORE applying the method supplied in the request
+       - /* it appears to be a transaction id or version identifier */
+       - The client HAS THE OPTION of supplying the ETag with subsequent requests...this is why its referred to as "conditional".
+       - 412 Precondition Failed response when an If-Match header results in no match
+
+/* Uh oh, by the NOTE at the top of P81, my dream of composable transactions is disappearing.  Note that "if two parts of a resource are independently updatable, they should be separately adddressable resources" */
+
+/* We are getting deeper into "Extensive Header Hell" which move our webservice further and further away from being driven with nothing more than simple HTML.  I know that's not his goal, but it was my expectation that is being shattered. */
+
+        - If-None-Match is typically used with conditional GETs to avoid costly computation
+        - If-None-Match: *
+          The wildcard instructs the service to apply the request method only if the resource doesn't currently exists
+          Avoids race conditions on PUT of a new resource to a well-known URI /* I thought POST c  reated.  This is PUT where client determines Id, I guess */
+        - If-Match: *
+          instructs the service to apply the request only if the resource does exist
+          Useful in situations where the consumer wishes to modify an existing resource using a PUT, but only if the resource hasn't already been deleted
+
+/* I'm not sold on If-None-Match and If-Match */
+
+P83:  Consuming CRUD Services 
+
+HTTP Client plugged as Java consumer
+
+WADL - Web Application Description Language
+     - "A WADL contract is an XML document that describes a set of resources with URI templates, permitted operations, and request-response representations"
+     - restbucks.wadl is the WADL from P86
+     - "The point of WADL is to help tooling automate as much service plumbing as possible."
+
+CRUD is good, but its not great
+  "...for all their strengths and virtue of simplicity, CRUD services are only suited to CRUD scenarios.  More advanced requirements need richer interaction models and...emphasize stronger decoupling than CRUD allows."
+
+
+
+
+

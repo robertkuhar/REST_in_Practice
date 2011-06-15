@@ -1,0 +1,103 @@
+Chapter 3:  Basic Web Integration
+
+/* I don't understand the warning at all.  What is he saying?   This is important, but you shouldn't do it?  Or is this more of "where we came from" history? */
+
+Two Techniques:
+  1.  URI Tunneling
+  2.  Plain Old XML (POX)
+
+These techniques allow us to quickly integrate systems using nothing more than web servers, URIs, and (for POX) a little XML.
+
+"...while we're working on enterprise systems...there's a nagging doubt about whether we really need all these clever middleware capabilities"
+/* I always chaffe at this, thinking back to the early MySQL days with the assertion "you don't really need transactions"...isn't this "nagging doubt" pretty much the same thing?  Lack of trust in those who have been there? */
+
+"The fact is that not all integration problems need middleware-based solutions.  Going lightweight can significantly reduce the complexity of a system and reduce its cost, risk, and time to deployment."
+
+"A SERVICE is nothing more than a technical mechanism for hosting some business logic."
+
+Below Figure 3-1 "Integration-friendly interfaces tend to be at the edges of the system...we should look for interfaces that encapsulate recognizable concepts from the problem domain with reasonably coarse granularity."
+  Facade pattern supports this idiom if no existing interfaces or integration points are suitable.
+
+Properties of well formed Integration points
+  1.  Methods that encapsulate some (coarse-grained) business concept rather than a low-level technical detail
+  2.  Methods that support existing presentation logic, such as controllers in the MVC pattern
+  3.  Scripts or workflows that orchestrate interactions with the domain model
+
+Avoid integration points with the following properties
+  1.  Data access methods, especially those that are transactional /* !?!?!!!? */
+  2.  Properties/getters and setters
+  3.  Anything that binds to an existing presentation tier such as reusing view logic or screen scraping
+
+/* I don't fully understand the "reusing view logic" warning. */
+
+Restbucks will use plain-jane HTTP for request/response
+
+"Client-side cashier dispatcher"
+  Local-looking facade
+
+/* I think the comment about "hiding remote behavior from a consuming application is known to be a poor idea..." is interesting.  I think it goes against every remoting mechanism I've ever worked with;  most RPC has a stub/skeleton thing that allows the client to work as if the call is local.  Webber is saying this is wrong? */
+
+URI Templates
+  Machine-readable metadata that describe how clients should bind to and interact with services.
+  URIs Templates describe syntactic patterns for the set of URIs that a Service supports
+
+/* "RESTful Web Services Cookbook" receives some props */
+
+"URI Templates...provide a way to parameterize URIs with variables that can be substituted at runtime...they can therefore be used to describe a service contract".
+   URI Template for details of a single order:  http://restbucks.com/order/{order_id}
+  URI Template for details of multiple orders:  http://restbucks.com/order/{year}/{month}/{day}
+
+  Calculating an actual URI from a URI Template is known as "expansion".
+
+  URI Templates are used as human and machine readable documentation.
+    Humans get a mapping of the service via it's URI Templates
+    Machines get a mechanism to allow easy and rapid validation of URIs that should resolve to valid addresses for a given service.
+
+URI Tunneling
+  URI Tunneling uses URIs as a means of transferring information across system boundaries by encoding the information within the URI itself
+    * In more robust integration schemes, URIs only indentify resources and HTTP verbs and metadata provide more detailed information
+    * Retrieving info will be tunneled through GET
+    * changing state will be tunneled through POST
+
+  GET is safe and idempotent
+    * GET generates no server-side side effects for which the client can be held responsible
+    * Idempotent operation is one that generates absolute side effects.  Invoking an idempotent operation repeatedly has the same effect of invoking it once.
+    * GETs are idempotent when you interpret their response as "the state of the resouce associated with that URI AT THE MOMENT the request was received, even if they return different data"
+
+  POST
+    * less strict than GET
+    * expectation is that changes to the resource will occur as a result of this call
+
+URI Template for Order Placement:  http://restbucks.com/PlaceOrder?coffee=latte&size=large&milk=whole&location=takeaway
+
+/* Note what comes back from the PlaceOrder call.  Not a whole serialized Order, just the ID of one. */
+/* Note also there is no data-typeing of this stuff, and Order ID is just a string, like any other.  As it moves through the interface it loses the fact that its a number (I'm guessing this as it needs toString()'ed in the .NET code). */
+
+Page 41, NOTE:  "...In fact, we generally advise against sharing types across service boundaries since it introduces tight coupling, which prevents independent evolution of the coupled systems"
+
+URI Tunneling services are Level 1 on Richardson's Maturity Model.
+  "...in the general case, URI tunneling is't web-friendly because URIs are used to encode operations rather than indentify resources that can be manipulated through HTTP verbs."
+
+POX:  Plain Old XML over HTTP
+  "...using addresses to convey business intent is, after all, strange".  /* Is it?  When I had to send my wading boots back to VA for exchange, the mailing address clearly stated "returns" on it...isn't that Business Intent encoded into an Address? */
+
+  XML over HTTP is pretty much just Messaging.  
+
+  POX is web-style integration using HTTP request/response as a means to transfer documents, encoded in regular XML, between client and server.
+
+  XML provides for more complicated data structures beyond which can be encoded directly into a URI
+
+  "POX is a pattern, not a platform"
+
+  Can't handle Transacted or Reliable Message delivery.
+
+WADL (Web Application Description Langauge)
+  New TLA for me!
+
+XML-RPC provides a Lowest Common Denominator type system.
+
+POX is ranked below plain-jane URI Tunneling.
+
+
+
+RAIL Restful URI Templates (http://ruby.railstutorial.org/chapters/modeling-and-viewing-users-one?version=2.3#sec:6.4)

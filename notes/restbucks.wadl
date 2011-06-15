@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<application xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://research.sun.com/wadl/2006/10" xmlns:ord="http://schemas.restbucks.com/order">
+  <grammars>
+    <include href="order.xsd"/>
+  </grammars>
+  <resources base="http://restbucks.com/">
+    <resource path="order">
+      <method name="POST">
+	<request>
+	  <representation mediaType="application/xml" element="ord:order"/>
+	</request>
+	<response>
+	  <representation status="201"/>
+	  <fault mediaType="application/xml" element="ord:error" status="400"/>
+	  <fault mediaType="application/xml" element="ord:error" status="500"/>
+        </response>
+      </method>
+    </resource>
+    <resource path="order/{orderId}">
+      <method name="GET">
+	<response>
+	  <representation mediaType="application/xml" element="ord:order"/>
+	  <fault mediaType="application/xml" element="ord:error" status="404"/>
+	  <fault mediaType="application/xml" element="ord:error" status="500"/>
+        </response>
+      </method>
+      <method name="PUT">
+	<request>
+	  <representation mediaType="application/xml" element="ord:order"/>
+	</request>
+	<response>
+	  <representation status="200"/>
+	  <fault mediaType="application/xml" element="ord:error" status="404"/>
+	  <fault mediaType="application/xml" element="ord:error" status="409"/>
+	  <fault mediaType="application/xml" element="ord:error" status="500"/>
+        </response>
+      </method>
+      <method name="DELETE">
+	<response>
+	  <representation status="200"/>
+	  <fault mediaType="application/xml" element="ord:error" status="404"/>
+	  <fault mediaType="application/xml" element="ord:error" status="405"/>
+	  <fault mediaType="application/xml" element="ord:error" status="500"/>
+        </response>
+      </method>
+    </resource>
+  </resources>
+</application>

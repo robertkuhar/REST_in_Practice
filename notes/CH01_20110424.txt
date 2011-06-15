@@ -1,0 +1,87 @@
+Chapter 1:  The Web as a Platform for building Distributed Systems
+
+"The Web...is the largest, least formal integration project ever attempted"
+
+"...goal throughout is to describe how to build distributed systems based on the Web's architecture"
+  HTTP
+  Solutions implemented in Java and .NET
+
+"Despite the emergent chaos at global scale, the Web is remarkably simple to understand and easy to use at local scale. As documented by the World Wide Web Consortium (W3C) in its "Architecture of the World Wide Web," the anarchic architecture of today's Web is the culmination of thousands of simple, small-scale interactions between agents and resources that use the founding technologies of HTTP and the URI.* "
+  HTTP and URI are the foundation
+
+Re: Figure 1-1:  "Service Boundaries support isolation and independent evolution of functionality, thereby encouraging loose coupling."
+
+"Traditional middleware technologies...focused on Computer Science aspects of distributed systems"
+
+"The Web's middleware is a set of widely deployed and commoditized servers...has allowed the Web's focus to shift to information and documents staring using hypermedia."
+
+/* The most enlightenting thing here, for me, is the empahasis on DOCUMENT rather than Object or Table or Row.  Data is contained in DOCUMENTS */
+
+"...the decision to allow broken links..."404 Page Not Found" error...explicitly acknowledged that we can't be in control of the whole system all the time".
+
+THINKING IN RESOURCES
+
+"A Resource is anyting we expose on the web"
+
+URI - Uniform Resource Identifier
+    - Uniquely identifies a web resource
+    - A URI identifies only one resource, but a resource may have more than one URI
+
+/* The first note on Page 6 is interesting in that it suggests turning to "Semantic Web" techniques when trying to figure out if two different URIs point to the same actual resource.  He says he will cycle back around to this.  */
+
+URN and URL are specific forms of URI
+
+!! "A REPRESENTATION is a transformation or view of a resource's state at an instance in time." !!
+
+!! "Access to a resource is always mediated by way of its representations. That is, web components exchange representations; they never access the underlying resource directly - the Web does not support pointers! URIs relate, connect, and associate representations with their resources on the Web. This separation between a resource and its representations promotes loose coupling between backend systems and consuming applications. It also helps with scalability, since a representation can be cached and replicated." !!
+
+"The success of the Web is linked with the proliferation and wide acceptance of common representation formats. This ecosystem of formats (which includes HTML for structured documents, PNG and JPEG for images, MPEG for videos, and XML and 
+JSON for data), combined with the large installed base of software capable of processing them, has been a catalyst in the Web's success."
+
+"There is a misconception that different resource representations should each have their own URI - a notion that has been popularized by the Rails framework...Using Content Negotiation, consumers can negotiate for specific representation formats from a service...HTTP Accept request header..."
+
+Resources provide the Subjects and Objects on the web
+HTTP Methods provide the Verbs
+  GET, POST, PUT, DELETE, OPTIONS, HEAD, TRACE, CONNECT, and PATCH
+  HTTP Response Codes coordinate the interactions instigated by the use of the verbs.
+
+Verbs and Status Codes provide a general framework for operating on resources over the network.
+
+Roy Fielding coined REST in his disseratation.
+  "REST describes the Web as a distributed hypermedia application whose linked resources communicate by exchanging representations of resource state."
+
+  In a Hypermedia system, application states are communicated through representations of uniquely identifiable resources".
+
+/* Uh, oh...I don't really understand HATEOAS on Page 14 */
+
+"Many of today's distributed applications on the Web do not follow the REST architectural tenets, even though many still refer to these applications as "RESTful"."
+
+Page 16:  "As developers ourselves, we understand how we can believe that asynchronous message-centric solutions are the most scalable and highest-performing options. however, existing high-performance and highly available services on the Web are proof that a synchronous, text-based request-response protocol can provide good performance and massive scalability when used correctly.
+
+The Web combines a widely shared vision for how to use http effciently and how to federate load through a network. It may sound incredible, but through the remainder of this book, we hope to demonstrate this paradox beyond doubt."
+
+Leonard Richardson proposed a classification for services on the Web to describe their maturity relative to well established patterns and practices of HTTP the Verbs, the Status Codes, and representational state.
+
+3 levels of Richardson Maturity based on a service's suport for URIs, HTTP, and Hypermedia.
+
+Level 0:  No support
+  - SOAP is Level 0 as it is typically POST only with a single URI to identify an endpoint
+
+Level 1:  Many URIs but a single HTTP Verb
+  - Most services today fall into this category
+
+Level 2:  Many URIs and multiple HTTP Verbs
+  - CRUD is supported
+  - Amazons S3 storage is an example
+  
+
+Level 3:  Hypermedia as the engine of Application State
+  - /* No example?!?!  WTF? */
+
+Page 28:  The <link> element in <order> is interesting.  Using "atom" gets them the capability of an existing standard to link resources.  He refers to them as "hypermedia controls".
+
+/* I don't understand the last paragraph of Page 29 */
+
+
+
+

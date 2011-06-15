@@ -1,0 +1,120 @@
+Chapter 5:  Hypermedia Services
+
+Hypermedia Tenet:
+  The interlinked pages of the web themselves define a protocol - series of steps to achieve a goal.
+  The essence of hypermedia is by transiting links between resources, we change the state of an application.
+
+HATEOAS - Hypermedia as the Engine of Application State
+
+Hypermedia systems transform application state.
+
+"application state" is a snapshot of the entire system at a particular instant.
+
+On each interaction, the service and consumer exchange representations of resource state, not application state.
+  - Application State is inferred on the client based on the state of all the resources.
+
+The current state of a resource is a combination of:
+ - The values of information items belonging to that resource
+ - Links to related resources
+ - Links that represent a transition to a possible future state of the current resource
+ - The results of evaluating any business rules that relate the resource to other local resources
+
+!! "Importantly, the rules that control the state of a resource are internal to the service that governs the resource: they're not made available to consumers. In other words, resource state is a function of a private ruleset that only the resource owner knows about: those rules don't leak into the external representation."
+
+/* The comments on 95 (113 of 448 in Preview) regarding circular dependency avoidance is interesting...even though I don't fully understand what is being said */
+
+DAP - Domain Application Protocol
+  - A service enforces a protocol by advertising legitimate interactions with relevant resources
+
+Services implement DAPs by adding hypermedia links to resource representations
+
+"Rather than understand a specific URI structure, a consumer need only understand the semantic or business context in which a link appears...As a consequence, services gain a great deal of freedom to evolve without having to worry whether existing consumers will break."
+
+Loose Coupling:  Page 96
+"The beauty of hypermedia is that it allows us to convey protocol information in a declarative and just-in-time fashion as part of an application's resource representations.*
+ * Most middleware solutions, such as WS-*, emphasize the opposite: imperative contracts presented upfront."
+
+"For computer-to-computer interactions, we advertise protocol information by embedding links in representations...to describe a links purpose, we annotate it...we can use microformats or Semantic Web technologies..."
+
+Annotated Links are called Hypermedia Controls
+  A Hypermedia Control includes the address of a linked resource, together with some semantic markup
+
+"Hypermedia-driven distributed systems put similar demands on their consumers as the Web does on humans:  consumers need to discover and interact with resources so that they can realize an application's goal."
+
+/* So what is becoming clear to me here is that the reponses need to include links to "what are all the legitimate actions from here".  His example on Page 97 of the XML order response giving no indication of how to pay demonstrates this problem. */
+
+"Generally, it's better to expose only stable URIs. These stable URIs act as entry points to services, after which hypermedia takes over."
+
+"The (URI) templates remain a private design and development detail".
+
+Hypermedia Format:
+  Standard Formats:
+    - Atom
+    - XHTML
+  Domain-specific hypermedia formats
+
+/* I did not fully follow the whole Page 101 "...suboptimal method because it results in multiple elements with almost identical link semantics, but different protocol semantics." and how <link rel="...">... solved it better than <payment>. */
+
+Media Types:
+  "Fortunately, HTTP provides a way of identifying particular media type representations using the Content-Type header (e.g., Content-Type: application/ xml, which we have used in previous chapters).
+
+3 components of a DAP (Domain Application Protocol)
+  1.  Media Type(s)
+      - Help consumers understand the "what" is at the other end of a link
+  2.  Link Relation Values
+      - Help consumers understand the "why" they might want to activate the hypermedia control
+  3.  HTTP idioms
+      - GET, PUT, POST is all about the "how"
+
+"Content-Type headers, not XML namespaces, declare how a representation is to be processed"
+
+Contracts
+  "Contracts define which HTTP idioms - methods, headers, and status codes - consumers should use to interact with a linked resource in a specific context."
+
+HTTP OPTIONS comes out of nowhere on Page 110.  "When neither the current payload nor the processing context indicates which idioms to use, OPTIONS can be used on the linked resource's URI."
+
+Hypermedial Protocols (Page 112)
+  "REST introduces a set of tenets that, when applied to distributed systems design, yield the desirable characteristics of scalability, uniformity, performance, and encapsulation."
+  Building Blocks are
+    1.  HTTP
+    2.  URIs
+    3.  Hypermedia
+
+"In a resource-oriented distributed application, an application protocol can be thought of as a function of one or more resource life cycles and the business rules that connect these resources"
+
+/* I totally don't get Page 116's assertion that link@rel "...imply which HTTP verb to use when following the link, as well as required HTTP headers and structure of the payload" */
+
+<dap:link
+  mediaType='application/vnd.restbucks+xml'
+  uri='http://restbucks.com/payment/1234'
+  rel='http://relations.restbucks.com/payment'/>
+
+/* Payment occurs on the URI http://restbucks.com/payment/1234 but I don't get HOW this implies PUT? */
+
+This really is totally different than what I was expecting; the content of order changes based upon its state.  Dramatically at that, especially in regards to the Links.
+
+Page 120:  "Paradoxical as it might seem, polling and caching enable the Web to scale.  Because representations can be cached close to consumers, no additional load needs to be generated on the service."
+
+/* By Page 126, I am totally confused by both the function and the value of rel='http://relations.restbucks.com/dap' */
+
+Implementing a Hypermedia Service
+  3 core activities
+    1.  Designing Protocols
+    2.  Choosing Formats
+    3.  Writing Software
+
+Jersey JAX-RS implementation
+  JAX-RS simply provides programmatic binding to the underlying web server
+
+Resources will act as Controllers for the Workflow Activities
+
+Workflow Activities implement the individual stages of the Restbucks workflow in terms of resource life cycles:
+  Creating Orders
+  Updating Orders
+  Canceling Orders
+  Creating Payments
+  Delivering Orders
+
+Workflow Activities provide choreography between tasks.
+
+
