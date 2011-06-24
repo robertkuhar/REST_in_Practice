@@ -117,4 +117,9 @@ Workflow Activities implement the individual stages of the Restbucks workflow in
 
 Workflow Activities provide choreography between tasks.
 
+!! Page 136:  "What's more interesting about this code is the way it's used by the workflow activities.  Recall that representations are created by activities, and that activities know about subsequent valid activities.  Using the constructor OrderRepresentation(Order order, Link... links), activities inject links into the representation.  Those links advertise subsequent valid activities to consumers of the representation, informing them of the next steps to take in the DAP."
 
+Hello.  Does changing this help?
+
+Doug will host us for the 2nd June meeting
+http://www.flowplay.com/corp/index.shtml
