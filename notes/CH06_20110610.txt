@@ -85,3 +85,69 @@ Response Headers used for Caching
       controls the caching behavior of the response
       one or more comma-separated directives which determine if the response is cacheable, by who, and for how long
       http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9
+      /* There are way more options here than I ever realized, I hope he explains them */
+
+
+  "If we can determine an absolute expiry time, we should use an Expires header"  You can also or instead specify Cache-Control header with a max-age or s-maxage directive which specify a TTL (Time to Live)
+    /* RFC2616 states that "...If a response includes both an Expires header and a max-age directive, the max-age directive overrides the Expires header, even if the Expires header is more restrictive." */
+
+  Cacheable responses should include a Validator - either an ETag or LastModified header
+    ETag
+      In CH04 we talked about this for concurrency control it works for validating freshness equally well
+    Last-Modified
+      Date header specifies when the response was generated
+      Last-Modified specifies when the resource last changed
+      Last-Modified is only accurate down to the second.  For more fine-grained control, ETag is the only option
+
+Using Caching Directives in Responses
+  Cache-Control directives serve 3 functions
+    1. Make a response cacheable
+    2. Make a response uncacheable
+    3. Specify the "freshness" of a cached response
+
+    max-age=<delta-seconds>
+       Controls both cacheability and freshness
+       Local and Shared caches
+       overrides any Expires header
+
+    s-maxage=<delta-seconds>
+       Controls both cacheability and freshness
+       Shared caches ONLY 
+       /* I thought this one was interesting */
+
+    public 
+      Local and Shared caches
+      NO EFFECT ON FRESHNESS
+      takes precedence over authorization headers, allowing the reponse to be cached in the presence of Auhorization header (which would typically suppress the cachinig)
+
+    private
+      Local caches ONLY
+      NO EFFECT ON FRESHNESS
+
+    must-revalidate
+      Makes an uncacheable response cacheable, but requires cache to revalidate with origin server
+      Efficient validation on the origin server side reduces bandwidth consumption via 304 Not Modified responses
+
+    proxy-revalidate
+      Shared caches ONLY
+      similar to must-revalidate
+
+    no-cache
+      Requires cache to revalidate a cached response with the origin server with every request
+      Implementations vary on its function
+
+    no-store
+      Makes normally cacheable content uncacheable by all caches
+
+  HTTP Stale Controls RFC adds...
+
+    stale-while-revalidate=<delta-seconds>
+      Instructs the cache to immediately send a stale response, and revalidate in the background, until delta-seconds have passed, then it should stop serving it.
+      Favors reduced latency over consistency
+
+    stale-if-error=<delta-seconds>
+      Allows a cache to release a stale response if it encounters an error while contacting the origin server.  
+      If a response is staler than the stale window specified by delta-seconds, it should not be released.
+      This directive favors avail- ability over consistency.
+
+  Squid 2.7 implements these last two
