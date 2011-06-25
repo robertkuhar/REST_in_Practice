@@ -1,0 +1,87 @@
+Chapter 6:  Scaling Out
+
+Doug will host us for the 2nd June meeting as well as the August meetings
+http://www.flowplay.com/corp/index.shtml
+
+GET Back to Basics
+  Response includes headers which help consumers and any intermediaries on the network process the response.
+  GET is "safe and idempotent".  Which makes it Cache Friendly.
+
+Caching
+  "Origin serers control the caching behavior of the representations they issue...using HTTP headers".
+  "Freshness lifetime" period of time a cached copy is considered "fresh" and suitable as a response.
+  "Caches will often add an Age response header to a cached response" /* THIS I did not know! */
+  It appears the responsibility of the Cache to revalidate any stale representations.
+
+Benefits of Caching
+  1. Reduce bandwidth
+  2. Reduce latency
+  3. Reduce load on servers
+  4. Hide network failures
+       Caches provide fault tolerance by masking intermittent failures and delays from consumers.
+       /* How does this deal the the stale representations? */
+
+Caching and the Statelessness Constraint
+  http://soundadvice.id.au/blog/2010/01/17/ by Benjamin Carlyle (fuzzyBSc)
+    - "Uniform Interface" is a REST constraint as is "Stateless"
+    - "...services in a REST-style architecture are stateless between requests.  They don't carry any session state on behalf of the clients that aren't currently in the process of making requests..."
+    - "...any architecture that really scales will be one that seeks to make use of the resources available near the network edge (closest to the consumer)"
+    - Stateless
+      - Move as much storage space from services to the edge of the network as possible
+      - REST sets the bar for statelessness at the request level:  No session state needs to be retained by the service between requests
+      - The effect of this is that session state is moved back to the service consumer at the end of each request.  Any session state required to process subsequent request is included in those susbsequent requests.
+      - He makes a distinction between "Session" and "Service" state
+      - Cache exists in REST to counter the negative effects of stateless
+    - Principal of Least Power
+      - Provide your consumers with Information rather than a Program to run.  The consumers will figure out interesting ways to process the information.
+    - Code on Demand
+      - Service can push compute power requirements out to the edge of the network.
+      - Javascript, Applets, HTML are examples of pushing the compute requirements out to the consumers.
+
+I love the NOTE on Page 159:  "...polling is what allows the Web to scale..."
+
+!! "By making respresentations cacheable, we get massive scale, but introduce latency between the resouce changing and those changes becoming visible to consumers"
+
+Reasons for Not Caching
+  1. GET requests with service dictated side effects (bandwidth cap on a particular client, for example)
+  2. Zero-tolerance for discrepancy between representation and actual state of the resource.
+     "This is particularly problematic when two or more overlapping resources manipulate the same underlying domain entity."
+  3. If the Response contains sensative or personal data particular to a consumer
+     "it is possible to cache responses in a way that requires the cache to authorize them with the origin server with every request"
+  4. When the data changes so frequently that caching and revalidating a response adds more overhead than the origin server simply generating a fresh response with each request
+
+Types of Caches {Local, Proxy, Reverse Proxy}
+  Proxy servers are common intermediaries between consumers and origin servers
+  
+  Local
+    stores representations from many origin servers on behalf of a single user agent, application, or machine.
+    maybe held in memory
+    maybe persisted to disk
+
+  Proxy
+    stores representations from many origin servers on behalf of many consumers.
+    Hosted both inside and outside the corporate firewall
+    
+  Reverse Proxy (aka. Accelerator)
+    stores representations from one origin server on behalf of many consumers
+    located in front of an application or web server
+    clusters improve redundancy and prevent popular resources from becoming server hotspots
+    Squid, Varnish, Apache Traffic Server are examples
+
+Making Content Cacheable
+  "Responses to GET requests are cacheable by default"
+    * The response should really have either an expiry time, or a validator
+  POST can be made cacheable with an "Expires" header, or "Cache-Control".
+  
+Response Headers used for Caching
+  2 main headers
+    Expires
+      specifies an absolute expiry time
+      one year into the future indicates that the content never expires (seems strange)
+      min is 0 (now) or a date that is now.
+
+    Cache-Control
+      used in both Requests and Responses
+      controls the caching behavior of the response
+      one or more comma-separated directives which determine if the response is cacheable, by who, and for how long
+      http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9
