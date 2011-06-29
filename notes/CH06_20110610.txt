@@ -148,6 +148,89 @@ Using Caching Directives in Responses
     stale-if-error=<delta-seconds>
       Allows a cache to release a stale response if it encounters an error while contacting the origin server.  
       If a response is staler than the stale window specified by delta-seconds, it should not be released.
-      This directive favors avail- ability over consistency.
+      This directive favors availability over consistency.
 
   Squid 2.7 implements these last two
+
+
+  Example 6-7 (Page 166)
+    Cache-Control: public, max-age=0
+      public    - local and shared caches
+      max-age=0 - requires a cache to revalidate with the origin server (using conditional GET)
+      /* NOTE how no-cache gets misinterpreted sometimes */
+
+Implementing Caching in .NET
+  /* The Jersey Request/Request.Builder don't seem to have the same level of support for the specialty headers as the Response/Responst.Builder do.  All it has is plain-jane header( String name, Object value ) where-as the Server side ResponseBuilder has cacheControl(CacheControl cacheControl), expires(java.util.Date expires), variants(java.util.List<Variant> variants)  */
+ /* There appears to be no built in client side cache in Jersey, open source to the rescue via http://code.google.com/p/smart-util/wiki/JerseyCacheClient */
+
+Consistency
+  "Because the Web is loosely coupled, weak consistency is a feature of all web-based distributed applications. As a result of the statelessness constraint, a service has no way of notifying consumers when a resource changes."
+  3 techniques to improve consistency
+    1. Invalidation
+         Notify consumers of changes to resources
+         This goes against the statelessness constraint
+
+    2. Validation
+         Consumers and Caches can verify a local copy with the origin server
+         Expensive in terms of bandwidth and server load
+         /* Leaves REST in the uncomfortable position of only having "check then set" available to it */
+
+    3. Expiration
+         Explicit TTL issued by server for each cachable resource.
+         
+  Expiration and validation can be used separately on in combination.  There is no "correct" solution.
+            Validation Only:  + representations are always up to date 
+                              - bandwidth load
+                              - server load
+            Expiration Only:  - representations are NOT always up to date
+                              + reduced bandwidth
+                              + reduced server load
+    Validation + Expiration:  + representations are mostly up to date
+                              + optimized bandwidth load
+                              + optimized server load
+
+Using Validation:
+  ETag with If-Match and If-None-Match headers are Conditional GET
+  Conditional GET conserves bandwidth by sending and receiving just HTTP headers rather than headers plus entity bodies.
+  Conditional GET is ONLY USEFUL IF THE CLIENT HAS A COPY OF THE RESOURCE
+
+  The Vary header is interesting and completely new to me.  The NOTE on Page 173 does a fair job of explaining its function.
+
+  Server-side, caculating an ETag is a case-by-case decision
+  Client-side, an ETag should always be considered an opaque string...don't try to decode it.
+
+  Server-side considerations
+    1. Computation cost
+    2. Storage cost
+
+  He asserts that on of the cheapest ETags is just the toString() of timestamps.
+  Hashing the representation is usually the most expensive ETag generation strategy.
+  Avoid using Machine Identity as any part of this.
+
+Using Expiration:
+  Consumers, too, can influence cache behavior by sending Cache-Control directives in requests.  Page 177
+  /* I had not considered this! */
+  If a failed conditional PUT or POST it's normal for the consumer to GET the current state of the resource before before retry.
+
+Using Invalidation:
+  2 types
+    1. Consumer-driven invalidation
+    2. Server-driven invalidation
+
+  Server-driven invalidation not intrinsic to HTTP
+
+  HTTP Spec DELETE, PUT, POST requests should invalidate any cached representations belonging to the request URI.  Further, if the response contains a Location or Content-Location header, representations associated with either of these header values should be also invalidated.
+    /* WOW.  How do you keep ALL the caches in line with this!?!  I mean the DELETE, PUT, or POST goes through at most one of the caches, how do all the others figure this out? */
+
+
+Extending Freshness
+  Cache Channels implement a technique for extending the freshness lifetimes of cached representations.
+  Caches that understand the protocol can keep a stale representation as still fresh until they hear otherwise
+
+  Cache channels add extenstion to the Cache-Control header
+    channel - absolute URI of a channel that a cache can subscribe to in order to fetch events associated with the cached representation
+    group - absolute URI that can be used to group multiple cached representations
+
+  Squid and Varnsih do Cache Channel, although I don't completely understand how it works.
+
+Chapter 7: 51 pages on The Atom Publishing Protocol
