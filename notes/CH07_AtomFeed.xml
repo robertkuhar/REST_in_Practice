@@ -1,0 +1,51 @@
+<?xml version='1.0'?>
+<feed xmlns='http://www.w3.org/2005/Atom'>
+    <id>urn:uuid:d0b4f914-30e9-418c-8628-7d9b7815060f</id>
+    <title type='text'>Recent Orders</title>
+    <updated>2009-07-01T12:05:00Z</updated>
+    <generator uri='http://restbucks.com/order'>Order Service</generator>
+    <link rel='self' href='http://restbucks.com/order/recent'/>
+    <entry>
+        <id>urn:uuid:aa990d44-fce0-4823-a971-d23facc8d7c6</id>
+        <title type='text'>order</title>
+        <updated>2009-07-01T11:58:00Z</updated>
+        <author>
+            <name>Jenny</name>
+        </author>
+        <link rel='self' href='http://restbucks.com/order/1'/>
+        <content type='application/vnd.restbucks+xml'>
+            <order xmlns='http://schemas.restbucks.com/order'>
+                <item>
+                    <milk>whole</milk>
+                    <size>small</size>
+                    <drink>latte</drink>
+                </item>
+                <item>
+                    <milk>whole</milk>
+                    <size>small</size>
+                    <drink>cappuccino</drink>
+                </item>
+                <location>takeAway</location>
+            </order>
+        </content>
+    </entry>
+    <entry>
+        <id>urn:uuid:6fa8eca3-48ee-44a9-a899-37d047a3c5f2</id>
+        <title type='text'>order</title>
+        <updated>2009-07-01T11:25:00Z</updated>
+        <author>
+            <name>Patrick</name>
+        </author>
+        <link rel='self' href='http://restbucks.com/order/2'/>
+        <content type='application/vnd.restbucks+xml'>
+            <order xmlns='http://schemas.restbucks.com/order'>
+                <item>
+                    <milk>semi</milk>
+                    <size>large</size>
+                    <drink>cappuccino</drink>
+                </item>
+                <location>takeAway</location>
+            </order>
+        </content>
+    </entry>
+</feed>

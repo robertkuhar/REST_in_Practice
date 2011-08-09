@@ -29,3 +29,55 @@ Common uses for Atoms
     Links to resources that cannot otherwise be represented in hypermedia format, such as binary objects
 
 Atom for Event-Driven systems:
+  Page 189:  NOTE:  "Atom-based solutions trade scalability for latency, matking Atom often inappropriate for low-latency notifications...if seconds, minutes or hours can pass between events being produced and consumed, publishing Atom feeds works very well"
+  /* Wait...what?  Minutes?!?  Hours?!?  Who is waiting this long for coffee? */
+
+The Restbucks Product Catalog service acts as an authoritative source of data and behavior for Restbuck's product management capabilities
+  It provides "Reference Data"
+
+Page 190:  "Temporal coupling weakens a solution because it requires numerous independent systems to be running correctly at a specified instant in time."
+
+Page 190:  "To reduce coupling between producers and consumers of reference data, we generally recommend that reference data owners publish copies of their data, which consumers can then cache.  Consumers work with their local copy of reference data until it becomes stale.  By distributing information this way, services can continue to function even if the network partitions or services become temporarily unavailable.  This is exactly how the Web scales."
+
+/* I think the biggest issue here is "Event driven...via polling".  You usually don't hear the word "polling" in Event Driven systems. */
+
+Page 192:  NOTE:  "Interestingly, the polling approach inverts the roles and responsibilities normally associated with guaranteed message delivery in a distributed system.  Instead of the service or middleware being responsible for guaranteeing delivery of messages, each consumer now becomes responsible for ensuring that it retrieves all relevant information.  Since messages are collocated in time-ordered feeds, there's no chance of a message arriving out of order."
+
+/* Ugh...I don't really get the whole "recent feed vs working feed vs archive feed thing".  Stan, please explain. */
+
+The <link> element is Atom's primary hypermedia control
+
+The client knows the semnatic intent of the <link> via the rel, href, and type attributes respectively...
+  rel - describes the link relation or semantic context
+  href - URI of linked resource
+  type - linked resource media type
+
+The Atom spec has 5 link relations
+  1.  self
+  2.  via
+  3.  alternate
+  4.  enclosure
+  5.  related
+
+IANA's Registry of Link Relations has dozens.  He points us to it as reference.
+
+By Page 199, it is clear that his feeds NEVER MODIFY AN INDIVIDUAL ENTRY...only new ones get created.
+
+Page 200:  "Atom categories provide a simple means of tagging feeds and entries.  Consumers can easily search categorized feeds for entries matching one or more categories.  (And by adding feed filters on the server side, we can produce category-specific feeds based on consumer-supplied filter criteria.)
+
+/* Note "media type composition" at the bottom of Page 200. */
+
+/* Note also how, on Page 201, the prev-archive link is used to make current a client that has been out of touch for a while */
+
+<fh:archive/> is new here.  It "locks" an element declaring it safe for caching.  It is part of some standard Feed Paging and Archiving specification.
+
+Page 202:  "Processing an archive is a "there and back again" operation:  a consumer follows prev-archive links until it finds an archive containing the last entry it successfully processed, and then works its way back to the head feed - this time following next-archive links.  Whenever a consumer dereferences a prev-archive link, its local cache stores a copy of the response.  When the consumer next accesses this same resource, most likely as a result of following a next-archive link on the return journey, the cache uses its stored response."
+
+Page 202:  NOTE:  "this ability to create or reconstruct a local copy of the product catalog based on the entire archive is a great pattern for bringing a new system online or for supporting crash recovery, and is one of the ways the restbucks infrastructure scales to thousands or even millions of stores if necessary."
+
+/* I didn't completely get the redirect of recent to working discussion on Page 206 */
+
+
+
+
+
