@@ -1,0 +1,31 @@
+Chapter 7:  The Atom Syndication Format
+
+HTML remains the most popular hypermedia format in use today.
+
+Atom is an XML-based hypermedia format for representing timestamped lists of web content and metadata.
+
+Atom provides a flexible, extensible, interoperable format for transferring data between applications.
+
+Wide cross-platform support.
+
+Atom represents data as lists, called Feeds.
+
+Feeds are made up of one or more timestamped entries which associate metadata with web content.
+  Feed metadata allows us to provide friendly descriptions of content, links to other services or resources, means of navigation to other feeds.
+
+Atom doesn't attach any significance to the order of entries in a feed. 
+
+<atom:content> element
+ - Each entry also contains an <atom:content> element.
+ - <atom:content> elements can contain arbitrary foreign elements, including elements that share the default namespace.
+ - Here, the content includes a piece of Restbucks XML representing an order's details.  The <atom:content> element's type attribute contains a media type value (application/vnd. restbucks+xml) so that the consumers of an entry know how to process the payload.
+
+Common uses for Atoms
+  - Syndication:  A producer or publisher distributes content to many consumers via a common format
+  - Representing documents and document-like structures
+  - Creating metadata-rich lists of resources
+  - Adding metadata to existing resource representations
+  - Creating directories of nonhypermedia content
+    Links to resources that cannot otherwise be represented in hypermedia format, such as binary objects
+
+Atom for Event-Driven systems:
