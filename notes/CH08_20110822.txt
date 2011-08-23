@@ -1,0 +1,115 @@
+Chapter 8:  Atom Publishing Protocol
+
+AtomPub provides a standard mechanism for...
+  Creating Resources
+  Editing Resources
+  Resolving Conflicts
+
+AtomPub uses HTTP to create resources on the web
+
+AtomPub is a Domain Application Protocol
+  - Addresses concurrent editing of resources via optimistic locking with HTTP entity tags and validators
+  - Provides for binary content
+  
+Why use AtomPub?
+  "As with Atom, reach and interoperability weigh heavily in AtomPub's favor.  AtomPub is applicable in many publishing scenarios precisely because it addresses a core set of well-understood activities; it covers the bulk of common publishing use cases much as Atom covers the core elements common to an envelope format."
+  - AtomPub is ideal when manipulating the contents of Atom feeds in a standardized manner.
+  - AtomPub (and Atom) provide for meta-data with published web resources.
+  - AtomPub is interoperable.
+
+AtomPub servers host collections of published web content and associated meta-data as Atoms.  AtomPub servers also host service and category documents, which help clients discover collections and understand how the contents of those collections can be manipulated.
+
+AtomPub Processing Model 4 keys to building hypermedia applications
+  1.  Resource Representation formats
+  2.  Hypermedia control markup
+  3.  The HTTP idioms clients can use to manipulate resources
+  4.  The link relations servers use to advertise legitimate state transitions
+
+AtomPub Resources
+  1.  Members
+  2.  Collections
+  3.  Service Documents
+  4.  Category Documents
+
+  Members and Collections are the things targeted by publishing activities
+    Member
+      - encapsulates a representation of a published web resources or a representation of a resource in draft state (waiting to be published).
+      - a Member is represented as an Atom entry
+    Collection
+      - a set of Members
+      - a Collection is represented as an Atom feed
+
+P240:  Note how they use xmlns:app='http://www.w3.org/2007/app' to get the AtomPub stuff into an otherwise Atom feed.
+P241:  Note also the link rel="edit" stuff
+
+Collections are defined in Service Documents
+Collections support the following operations
+  1.  GET on the collection's URI produces a list of the collection's members
+  2.  POST creates a new member on the collection's URI
+
+Different collections support different media types.  The set of acceptable media types supported by a collection is specified in a Service Document
+
+Creation succeeds when Http 201 Created is the response.  The URI to the new member resource is referenced in a Location header.  This URI is called the "Member URI".
+
+The Server must always determine whether an action is legal.
+
+I DIDN'T FULLY UNDERSTAND the bottom of Page 242 where it talks about "the server mints URIs and controls the URI space and the members identified by these URIs.  Clients can create their own ID for a new member, but the server is entitled to modify the member and its representation, and even assign a new ID, as it seems fit.  Servers will not, however, modify any IDs the client assigns to the underlying web resources - that is, the server won't touch the contents of member representations.  The entity body in the response to a POST reflects whatever actions the server has applied to a member in the course of handling a request."
+
+
+Members
+  - time ordered collection in descending of <app:edited>
+ 
+Members support the following operations
+  1.  GET the members URI provides a representation of the resource
+  2.  PUT updates the member resource identified by the URI
+  3.  DELETE deletes the member resource identified by the URI
+
+AtomPub breaks Members down into sub-types
+  1.  Entry Resources are those which can be represented using Atom entries
+  2.  Media Resources are those which CANNOT be reprented directly in an Atom entry.
+
+Media Link Entries are how Media Resources are represented in a Collections feed.
+
+Category and Service Documents describe the overall AtomPub protocol
+  - they group collections into workspaces
+  - they describe each collection's capabilities
+  - they describe which categories and media types belong to each collection
+  - provide discovery mechanisms based on well-known entry points to collections
+
+Category documents
+  - contain a list of categories for categorizing collections and members
+  - has its own media type of application/atomcat+xml supporting its unique processing model
+
+Service documents
+  - acts as a well-known entry point into the collections hosted by a service.
+  - From a Service Document, a client can navigate to the collections provided by the service.
+  - has its own media type of application/atomsvc+xml supporting its unique processing model
+
+P245:  Note the <app:accept> tag.
+
+AtomPub extends Atom
+  1.  <app:edited>, <app:control>, <app:draft> entities
+  2.  "edit" and "edit-media" link-relation values
+  3.  Adds "type" parameter to the Atom media type.
+
+AtomPub introduces Slug HTTP Header (i'm not really sure what it does!?!)
+
+<app:edited>
+  - indicates when a member in a collection was created or last edited
+  - every member must have exactly one of these
+  - members in a AtomPub collection are ordered in descending order of these
+
+<app:control> and <app:draft>
+  - Uh...they do what?
+
+"edit" and "edit-media" link-relation values
+  - Clients use these to GET, PUT, and DELETE the resources with which they are associated.
+
+type parameters
+  - Feeds  can be identifed as:  application/atom+xml;type=feed
+  - Entrys can be identifed as:  application/atom+xml;type=entry
+
+Concurrency Control
+  - "Unreserved Checkout" strategy.
+  - Entity tags and Validators identify potential conflicts
+  - When a client POSTs an order, the server responds 201 - Created and an ETag header contain a unique identifier for a particular version of the resource.  Subsequent PUTs to the server include this ETag and the server's Validators perform an If-Match header check.  If the ETag provided does not match the current ETag of the resource, server responds 412 - Precondition Failed.  The Client must then decide how to proceed.

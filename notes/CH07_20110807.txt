@@ -77,7 +77,4 @@ Page 202:  NOTE:  "this ability to create or reconstruct a local copy of the pro
 
 /* I didn't completely get the redirect of recent to working discussion on Page 206 */
 
-
-
-
-
+Dan will do Chapter 8.
