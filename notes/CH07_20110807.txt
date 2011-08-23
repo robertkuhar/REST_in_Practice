@@ -77,4 +77,34 @@ Page 202:  NOTE:  "this ability to create or reconstruct a local copy of the pro
 
 /* I didn't completely get the redirect of recent to working discussion on Page 206 */
 
+Page 207:  "Atom helps us separate protocol and processing context from business payload using media type composition"
+
+Atom Service in Java
+  Jersey + Grizzly HTTP plumbing
+  ROME is Atom processing
+
+Page 209:  /* Note the simplicit of his next/prev URI and the warning about publishing it and tight coupling.  It seems naive to me to think that NOT PUBLISHING it somehow protects us from change. */
+
+Skipped .NET implementation, pick up on Page 234
+
+Atom Everywhere?
+
+"Broadly speaking, it can be used to enrich resource representations with general-purpose metadata, allowing consumers to search, sort, and filter representations without needing to understand their details."
+
+"If all we need is a list, not the feed metadata, we shouldn't burden our application with Atom's information overhead".
+
+All Atom elements can be extended with new attributes...this is called "metadata extensibility".
+
+"content extensibility" involves putting proprietary information inside of an entry's <atom:content> element.  Content Extensibility supports media type composition, which tends to enforce a stricter separation of concerns.
+
+Use Metadata Extension for application-agnostic features
+Use Content Extension for domain or application specific features
+
+Prefer Content Extension over Metadata Extension.
+
+The best extensions accelerate specialized clients, but do not hinder nonspecialized ones.
+
+Atom Feeds get you to Level Three on the Richardson Maturity Model.
+
 Dan will do Chapter 8.
+
