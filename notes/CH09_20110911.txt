@@ -76,4 +76,62 @@ WWW-Authenticate header
     The consumer and the service have a "shared secret", the consumer's password.
 
     Unlike Basic authentication, Digest authentication always requires the Challenge/Response because the nonce and such metadata must be exchanged.
+    Other benefits
+      1.  Security Credentials are far less easily compromised because the password itself is not transmitted
+      2.  The Authorization header's response value is never repeated which makes brute force attacks ineffective
+    Man-in-the-middle attacks are still possible if transport-level security is not also employed.
+      /* His example is somewhat faulty.  If the client is expecting Digest authentication, why would it participate in a Basic challenge? */
 
+    The author calls out transport-level security as mandatory when HTTP authentication is in use.  /* I agree */
+    HTTPS is Transport-level security
+
+  Transport-Level Confidentiality and Integrity
+    Primary benefits are ubiquity and maturity.  HTTPS is widely used, understood, and trusted.
+
+    HTTPS
+      Instead of exchanging HTTP requests and responses over TCP, we transmit those same requests and responses over TLS (Transport Layer Security).  TLS provides Integrity and Confidentiality.
+
+      TLS evolved from Netscape's SSL (Secure Sockets Layer).
+
+      TLS Protocol has 3 phases { Handshake, Secure Session, Channel Setup }
+        Handshake
+          3 way handshake is a TCP thing
+        
+        Secure Session
+          The Client and the Server figure out what Version of TLS they will do and with which cipher and hash algorithms
+          ServerCertificate is the service's Public Key (and optionally the service's name and Certificate Authority (CA))
+          TLS can also do Client Side certs  (see note on P 292).
+
+        Channel Setup
+          Client sends a ClientKeyExchange message encrypted using the service's public key
+          Subsequent client messages get hashed with the session key.
+            Hashing a message with the session key creates a Message Authentication Code (MAC).
+
+    /* Argh.  I still don't understand HTTPS, but I trust it. */
+
+    Drawbacks to HTTPS ubber alles
+      Scalability limits
+        cryptogrophy costs
+        CACHING IS BUSTED
+    
+    When designing these systems you must determine WHICH URIs need to be secure
+      "What is the value of this resource?"
+      "Who should be able to access this resource?"
+
+    To get both Caching and Secure Interactions, we must find an alternative to encrypted channels.  We need patterns that allow us to encrypt content on unencrypted channels (which are cacheable).
+      You basically publish the content encrypted and require the clients to have the key to decrypt it.
+      Atom Publishing apparently supports this /* Damn, I'm pissed I missed the last meeting. */
+      Management of the shared keys becomes a challenge
+
+  Identity and OpenID Protocol
+    HTTPS provids our Confidentiality and Integrity
+    Next up:  Identity
+
+    OpenID allows us to delegate Identity Management to someone else
+      Consumers know the identity of services through their certificates
+      Services come to know the identity of the consumers through their OpenID
+
+      OpenID is compelling because of its simplicity
+        /* The graph on P 296 is funky.  I like it. */
+
+P306
