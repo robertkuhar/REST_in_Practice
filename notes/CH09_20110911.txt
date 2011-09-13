@@ -134,4 +134,44 @@ WWW-Authenticate header
       OpenID is compelling because of its simplicity
         /* The graph on P 296 is funky.  I like it. */
 
-P306
+  OpenID is a web-centric protocol.  It uses URIs as the basis for a consumer's identity claims, and hypermedia (XHTML forms and POST data) to bind the protocol steps together.
+
+  OpenID4java is a Java implementation of OpenID
+
+  The not on P309 cracks me up "...we learned this the hard way...Remember to URL-encode all of your OpenID representations...".  Although I am surprised that they wrote their own.  Doesn't Java library have one (http://download.oracle.com/javase/6/docs/api/java/net/URLEncoder.html)?
+
+  /* The method signatures get rather confusing by Example 9-30.  Note the @PathParam annotation INSIDE of the argument list. */
+
+P315:  OpenID provides Identity, OAuth provides Authorization.
+  Authentication is "who"
+  Authorization is "what"
+
+P316:  "The OAuth protocol enables services and applications to interact with resources hosted securely in third-party services, without requiring the owners of those resources to share their credentials."
+
+P317:  /* The first paragraph explains it all, but I don't understand. */
+  "As the client, Restbucks never sees the credentials that the Resource Owner shares with the Voucher Service..."
+
+  OAuth defines 3 types of credentials
+    Client:     out-of-band between Client and Server (Voucher Service)
+    Temporary:  used to bootstrap the OAuth protocol 
+    Token:      used to allow access to protected resources once the protocol has completed
+
+  Restbucks must establish trust with the voucher service
+    Restbucks and Voucher Service establish an electronic domain of trust by sharing a set of client credentials.
+      - These credentials comprise a "consumer key" and a "consumer secret"
+
+    OAuth kicks in AFTER the user has attempted to pay with a voucher from the Voucher Service.
+      "Restbucks (the client) must first obtain some Temporary credentials from the Voucher Service.  These Temporary creadentials can be used later in exhange for Token credentials.  We need Token credentials to redeem vouchers."
+
+    P320 contains the Request/Response exhange
+
+    /* THROUGHOUT THIS WHOLE SECTION...I am confused as to where the "shared secret" comes from.  It was set up with the Voucher Service beforehand?  That can't be. */
+
+    /* I really didn't understand OAuth.  I bet it works, but he didn't do such a good job at explaining it. */
+
+    /* The note on P325 regarding Redirects, and state changing GETs is interesting.  It seems that breaking from the Canon is often the case in RESTful APIs. */
+
+
+    /* P326: "In the general case, sets of token credentials are valid for multiple interactions, which makes sense considering the effort involved in obtaining them! */
+
+Pull out at P347 (which looks to be the beginning of a Java implementation)
