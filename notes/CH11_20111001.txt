@@ -1,0 +1,59 @@
+Chapter 11:  The Web and WS-*
+
+2011-10-01:
+
+P375:  "...DCOM, RMI, and CORBA...standards were loose enough to allow integraion products that were standards-based on paper yet proprietary in practice."
+
+/* Isn't this still true, even without the standards?  Troughout this whole book its been how following convention eases your API's acceptance.  "Convention", not "Standards".  Just sayin. */
+
+P376:  "Today integration is largely a commodity...often the development communitiy is finding that the tools built into our everyday development platforms are sufficient."
+
+/* Don't know that the tools are so much "built-in" I think in most non-proprietary environments (Java, Python, Ruby, etc), or maybe its "with the rise of Open Source and Open Source Licenses", you can almost always find an integration solution. */
+
+/* HERE IS SOME TRUTH:  "Web services...championed the notion of heterogenous interoperability" */
+
+"...like Darth Vader, there is good in Web Services too."
+
+SOAP:  The Whole Truth
+
+SOAP, at its core, is indeed light-weight.  He asserts that it is lighter even than HTTP.
+
+Like HTTP, SOAP messages have placeholders for Headers
+  - The Headers have the metadata for setting processing context (security context, routing, etc)
+  
+
+HTTP is an Application Protocol
+
+SOAP is Message Oriented Middleware
+  - Application semantics are maintained entirely within service boundaries and are determined by message payloads.
+  - SOAP is a low-level messaging protocol
+
+P377:  "...web advocates are enraged that SOAP messages are tunneled through HTTP POST, which means the benefits of the existing web infrastructure (particulary caching) are lost"
+
+Envelope:
+  Fundamental to both SOAP and HTTP
+  Provides a placeholder for both metadata and data
+
+  Headers
+    In HTTP, the VERB is a Header
+    SOAP has a <soap:Header>...</soap:Header> section (its interesting to not that it is singular...not <soap:Headers> but <soap:Header>.)
+
+  Body
+    The body of both the HTTP and SOAP envelopes is application-specific.  In the HTTP case, we're carrying resource state representations; with SOAP, we're carrying a payload that the interacting parties must interpret.
+    /* Hmmm.  I think this is the same thing.  I mean, the interacting parties must interpret the representation in both cases, no? */
+
+SOAP has the notion of "Nodes" as intermediaries
+  /* I don't really get the "Nodes" concept.  Is he suggesting that the SOAP message changes as it gets processed? */
+
+P379:  NOTE on WS-Security is enlightening
+
+Faults:
+  HTTP 4xx, 5xx response codes from HTTP help applications make progress or take compensating action...kind of like Checked Exceptions
+
+  SOAP
+    very basic fault mechanism, SOAP Fault
+    identifies who's to blame; consumer, service, or intermediary
+      ? How does a party know its an intermediary?
+    SOAP faults are not standardized
+    "Rarely used WS-Coordination family of protocols"
+
