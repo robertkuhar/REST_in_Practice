@@ -1,0 +1,134 @@
+Chapter 11: Web Services 
+
+SOAP-based Web Services were disruptive in 2000
+  - use of Internet protocol and XML independent of proprietary middleware
+  
+DCOM, RMI, CORBA
+  - standardized but loose enough that proprietary implementations were the norm
+
+Integration is today a commodity in that the tools are usually built into the Development Environments
+
+The Web Services buzz of 2000 "...did the community a huge service as they became part and parcel of modern development platforms and championed the notion of heterogenous interoperability".
+
+/* !HETEROGENOUS INTEROPERABILITY! */
+/* http://www.w3.org/2003/Talks/05-gartner-tbl/slide6-0.html Cool slide deck in the general vicinity of this topic */
+/* Better link showing current state of WS-* http://stackoverflow.com/questions/855282/what-is-meant-by-ws */
+/* This too http://wiki.apache.org/ws/StackComparison */
+
+SOAP is lightweight
+  - All it describes is an envelop and a processing model for transferring messages across a network
+  - SOAP itself does not address larger problems like Security or Transactions.
+  - SOAP also does not impose application-level semantics or messaging patterns (unlike plain-jane HTTP)
+
+SOAP Processing Model
+  SOAP Envelope
+    Headers
+    Data
+
+  SOAP Headers can be used for Transactions
+
+  SOAP binds to more than just HTTP (only HTTP sees wide use, however)
+
+  ALL Protocols are Transport Protocols as far as SOAP is concerned
+
+  P376:  "SOAP and WS-Addressing together provide the complete transport-independent, end-to-end model fro SOAP message processing"
+
+  SOAP messages can be routed throug intermediaries, which process SOAP headers as each message passes through
+    /* This, I did not know */
+  
+  P377:  "SOAP (plus WS-Addressing) is much more akin to Message-Oriented Middleware since it only defines an envelope and a means of transferring that envelope over the network....SOAP is a low-level messaging protocol that does not impose any application semantics on the transferred payloads, leaving the interpretation of messages to the services that receive them"
+  /* Unlike HTTP which is Application Level protocol and interpretation is limited to conventionally understood semantics */
+
+  P377:  "...web advocates are enraged that SOAP messages are tunneled through HTTP POST, which means the benefits of the existing web infrastructure (particularly caching) are lost."
+  /* Hmmm.  Caching is overrated (opinion) */
+
+The Envelope
+  Both SOAP and HTTP have an "envelope" with..
+    Headers or MetaData
+    Body or the Data payload
+
+  Headers
+    Serve similar function in both SOAP and HTTP
+
+  Body
+    P379:  "In the HTTP case, we're carrying resource state representations; with SOAP, we're carrying a payload that the interacting parties must interpret."
+    /* Hmmm.  I don't see any semantic difference around the "must interpret" comment.  Either way, the end-points are "interpreting" this stuff, no? */
+
+
+Intermediaries:
+  In HTTP, the Caches are the intermediaries
+  In SOAP, "nodes" are the intermediaries
+
+  /* I don't see whether it is common for the SOAP "nodes" to CHANGE THE ENVELOPE as it traverses the network.  I know in HTTP that this occurs (headers get injected, I've never seen them removed or changed, though) */
+
+  ! P379:  Note:  "The SOAP processing model treats all headers as equal and does not impose a processing order on them.  This allows any set of WS-* technologies to be cleanly interleaved without side effects.  But some technologies, such as WS-Security, have side effects, which means that the ordering of encryption/decryption operations is critical with respect to other headers in the same message.  In practice, this means adopting conventions outside the scope of the SOAP specification for ordering encryption and decryption of messages."
+
+Faults:
+  HTTP has just Status Code 4xx and 5xx
+    Helps applications make progress or take compensating action at each interaction
+
+  SOAP has just SOAP Fault
+    Identifies responsible party { Consumer, Service, Intermediary }
+    Also contains general information about why the fault happened
+    THERE IS NO STANDARD TO THESE CONTENTS
+      It is either up to the application to interpret the meaning
+      ...OR...
+      WS-Coordination
+
+  P380:  "While SOAP faults are widely used, they rarely convey SOAP processing faults as the name suggests.  Instead, they are often used to transfer programming exceptions between services and consumers.  In the process, encapsulation is broken and unhelpful internal implementation errors are delivered to a consumer that has no business knowing them."
+
+WSDL:  Just Another Object IDL
+  "...the outbreak of WS-Peace..." made me smile
+
+  P380:  "If there is complexity in the Web Services stack, it doesn’t come from SOAP."
+
+  He pins SOAP complexity onto WSDL.
+    P381:  "WSDL...a verbose object interface definition language (IDL), which forces an unsuitable RPC-like model of parameters, return values, and exceptions onto Web Services."
+    /* Don't all the Definition Languages do this though..."tight coupling between the service's contract and its implementation"?  Remember those JAXB Annotations?  Is it tight coupling, or "hack of least resistence"? */
+    /* By P382 he is discounting my "hack of least resistence" argument */
+
+  P382:  Note:  "Objects in a domain model usually make poor choices for integration points because their life cycles are bound by their service.  Not only do remote methods make for chatty interfaces that aren't efficient over a network, but they also introduce tight coupling."
+
+  P383:  "It's straightforward to design loosely coupled services by building a "service model" between the domain model and the framework code that connects services to the network".  /* Straightforward, yes, but efficent with regards to programming, I'm skeptical.  I think what he is saying is that you are ALWAYS doing interpretation and mapping between your Services layer and your Domain Model. */
+
+  Oh, that is exactly what he is saying..."The service model provides a faithful view of the underlying messaging behavior of the system so that we can explicitly code for high latencies and low reliability in the network.  It also provides a mechanism to map information from messages into and out of domain objects..."
+
+  P384:  "...we have an extra tier to build compared to the naive tool-generated approach, but the benefits of creating the service model tier are manifold:
+          1.  We explicitly decouple our external contract and internal domain model.
+          2.  We explicitly code for messages and so take time to understand the latencies and failure modes so that we can handle them gracefully and produce a robust service.
+          3.  Proper separation of concerns makes the codebase maintainable for the long term."
+
+/* I'm calling bullshit on "Changes to the domain model will not affect service consumers".  That is true only as long as Changes to the Domain Model are so trivial as to NEVER EVER BE REALIZED BY THE CLIENTS.  In my experience, this is NEVER THE CASE.  CHANGES IN THE DOMAIN MODEL ARE ALMOST ALWAYS THE RESULT OF SOME CLIENT FACING REQUIREMENT. */
+
+/* I didn't fully understand the Document/Literal vs RPC/Encoded rant on P384, but I think I agree.  They shouldn't have used "RPC" in there as it clouds the issue */
+
+P385:  "In hiding the remote aspects of a distributed system, we hide necessary complexity to the extent that we can't build services that are tolerant of their inherent latencies, failure characteristics, and ownership boundaries."
+
+P385:  "Using WSDL alone, it is extremely difficult to describe a protocol such as the coffee ordering domain application protocol (DAP) we built in Chapter 5."
+  /* REST wins here, why?  Because we have the URLs of all valid next operations within the current response block as links? */
+
+P386:  "WSDL makes doing the wrong things easy and makes doing the right things difficult, especially for frameworks that support WSDL generation from code (and vice versa)."
+
+P386:  Ooh, ooh, he's setting up to stick it to WADL as well!
+
+Yep, he don't like it...
+  1.  WADL takes a static view of the web application...
+  2.  WADL tooling promotes tight coupling of client and service-side abstractions...
+  3.  WADL offers no clues about ordering of interactions with resources it advertises.
+  4.  WADL often duplicates the metadata that is available from the resources themselves...
+
+
+Security (P388)
+  WS-Security allows the sender of a message to sign and/or encrypt any part or the whole of the outgoing message so that it can't be tampered with and/or read while it's in transit.
+  There are higher-order protocols for Domains of Trust, Credentials, and so on.
+
+  End-to-end model
+    The WS-Security components are based on Public Key Cryptography end-to-end
+    They are installed and configured inside a service's SOAP stack and are advertised in the WS-SecurityPolicy document in the service's WSDL
+
+    "WS-Security works at the transfer protocol (message) level rather than the transport protocol level, so confidentiality and tamper proofing are supported from the sender through to the ultimate recipient."
+      /* Transfer vs Transport Protocol:  http://agilearchitect.blogspot.com/2006/05/difference-between-transfer-and.html  "Transfer uses Transport" */
+
+    WS-Security doesn't have to be applied only at the SOAP envelope level...it can be applied to only parts of the message.  This allows headers to be seen and proce by the intermediaries.
+
+2011-10-10 end here on P389
