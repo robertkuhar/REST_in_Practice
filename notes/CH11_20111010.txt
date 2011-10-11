@@ -131,4 +131,100 @@ Security (P388)
 
     WS-Security doesn't have to be applied only at the SOAP envelope level...it can be applied to only parts of the message.  This allows headers to be seen and proce by the intermediaries.
 
-2011-10-10 end here on P389
+Securing long-lived conversations
+  - HTTPS overhead can be computationally expensive, which makes WS-Security costly for multiple message exchanges
+  - WS-SecureConversation
+    - Uses WS-Security to bootstrap a long conversation
+    - communicating services establish a shared key using a single public key exchange and then subsequently use that shared key to transfer multiple messages
+    - WS-SecureConversation allows for mutation of the key as each message is exchanged
+    - Figure 11-4 shows the exchange
+
+
+  WS-Trust
+    P391:  "At the heart of Web Services security is the notion of a token that represents a claim in respect to the sender's identity"
+    - defines extensions to WS-Security that provide methods for issuing, renewing, and validating security tokens
+    - provides ways to establish and broker trust relationships
+    
+    WS-Trust Security Token Service (STS)
+      - the cornerstone is the WS-Trust is the Security Token Service (STS)
+      - able to exchange tokens of one type (in the requesting service's domain) for appropriate tokens of another type (in the receiving service's domain)
+      - /* I like the sound of this one */
+
+      WS-Trust allows a Web Service to specify that an incoming message must provide a set of claims via its associated WS-Policy description
+        - "claims" are of the type name, key, permission, capability, et
+      If the requesting service doesn't have the necessary token to support the required claims for the Web Service, it can contact the STS which the Web Service refers to in its WS-Policy description to request the tokens
+
+Federating Identities
+  Federated Identity allows Services in one organization to access Web Services in other organizations using local credentials to access the remote services
+  
+  WS-Federation
+    WS-Trust establishes identity locally
+    WS-Security allows the local identity to be used as a foreign identity on remote calls
+    The remote service asks its local identity provider to authenticate the sender using its local WS-Trust STS
+
+    P393:  "This pattern, where a receiving service calls back to an identity provider, has the benefit that the credentials are only stored in and validate at a single authority.  If business partnerships change and Web services from Domain A are no longer to be serviced, only the STS in Domain B needs to be updated, which reduces cost and complexity in operations."
+
+  The WS-Security stack
+    /* Hmmm.  He seems to take issue not with the capability of the stack, but with how it hides it implementation on P393 */
+
+
+  WS-Security makes HTTPS seem "pitiful".
+
+  Federated authentication on the Web
+    - The Web community has just begun work here
+    - OpenID seems to have captured the zeitgeist for Identity
+      /* Here is something I missed when we discussed this in CH09, P394 "...provided the service trusts the provider."  In other words, not all OpenID providers are equal, or it is up to your Service to decide which one(s) you will trust. */
+    - OAuth (Open Authentication) for Authentication
+
+Reliable Messaging
+  WS-ReliableMessaging (WS-RM)
+    - 4 schemes for reducing message delivery errors between Web Services
+        1. AT MOST once
+           Dups will not be delivered, messages may be dropped
+        2. AT LEAST once
+           Every message will be delivered, but dups may occur
+        3. EXACTLY ONCE
+           Every message will be delivered once, no dups
+        4. IN ORDER
+           Messages will be received in the same order they were sent
+    - A Service WS-RM policy makes it into its WS-Policy document in the WSDL
+    /* I find the P396 statement "...the consumer may request an acknowledgement of the re-sent (and any other) message too, and may persiste outgoing messages ready for retransmission in the event of a failure" interesting.  Does this commit the receiver to persist the "received" status of every message?  Can you do this will just sequence counters?  This feels very stateful. */
+
+  IN ORDER is baked into HTTP
+  AT MOST, AT LEAST, and EXACTLY ONCE are effectively collapsed into EXACTLY ONCE
+  The key is the idempotent verbs in HTTP
+
+  POST fucks this up.
+    HTTP status code to the rescue, with server-side state erroring out on duplicate requests
+
+
+Transactions
+  Coordination/Transaction protocols allow all parties to gain a consensus view of an actions outcome
+  In distributed systems, these are the 2-phase commits
+
+  Web Services have competing standards
+    Business Transaction Protocol
+    WS-CAF
+    WS-BusinessActivity protocol (widely accepted)
+    - NONE OF THESE ARE ACID (WTF?) see NOTE on P400.
+
+  Web Transactions
+    /* He doesn't believe two-phase commit is necessary */
+    /* It sounds like there is no standard beyond ad-hoc protocol based upon common understanding of a Header like "Transaction-Id" */
+    
+
+HERE COMES CONTROVERSY...
+  P403:  "the Web tends to have its own answer to enterprise problems, and as it happens transactions aren't necessary when dealing with web-based services."
+
+  /* He seems to say "it is entirely up to the Client to decide what a transaction means */
+
+  P404:  "Don't be tempted to involve consumers in your transactions by allowing such life-cycle information to leak past your service boundary."
+
+  /* I am confused as to how Figure 11-16 can work WITHOUT my client having some "state" given to it that represents my Transaction ID.  It can't help but leak out, can it? */
+
+
+A Requiem for Web Services
+  /* It sounds like he is saying that the Web RESTful solutions aren't as standardized as their WS-* counterparts, but that doesn't mean that they can't be built.  He really, really, hates WSDL and will throw the baby out with the bathwater because of it. */
+
+
+  
