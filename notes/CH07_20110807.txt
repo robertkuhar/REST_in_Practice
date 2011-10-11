@@ -105,3 +105,6 @@ Prefer Content Extension over Metadata Extension.
 The best extensions accelerate specialized clients, but do not hinder nonspecialized ones.
 
 Atom Feeds get you to Level Three on the Richardson Maturity Model.
+
+Dan will do Chapter 8.
+
