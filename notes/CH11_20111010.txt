@@ -227,4 +227,19 @@ A Requiem for Web Services
   /* It sounds like he is saying that the Web RESTful solutions aren't as standardized as their WS-* counterparts, but that doesn't mean that they can't be built.  He really, really, hates WSDL and will throw the baby out with the bathwater because of it. */
 
 
+Chapter 12:  Building the Case for the Web
+
+P408:  "The middleware that we use to deliver web-based systems is mature.  Web servers, caches, and proxy servers...don't require product specialists to build, configure, and run them" /* I call bullshit.  Specialists are still needed, its just the number of variants are shrinking. */
+
+I think I have to agree with the "Frameworks maturity" statement on P408.  "...developing testable, modular software (influenced by the success of Ruby on Rails and the like), development tends to be rapid, incremental, low-risk..."
   
+P409:  "A web-based system designed in the absence of careful measurements and empirical data is as likely to fail as any other solution designed without diligence...the Web offers visibility, which supports effective planning and design"
+
+/* I like this statement. */
+
+P409:  "While delegating responsibility for so-called "heavy lifting" to middleware services is appealing, it is misguided since it encourages us to ignore fundamental design considerations and trust an unknown black box."
+
+/* I HATE this statement.  Further, it is counter to his earlier assertions of commodity web-servers blah, blah, blah.  Aren't these things "black boxes"?  Is this a "Invent everything" view of the world?  The Rails folks didn't make the splash that they did by making everyone invent everything.  Nor did the J2EE stack.  "On the shoulders of giants" is, to me, the lesson to be learned from the industry's move to the Web */
+
+P411:  "Since good services are built to be stateless, they can scale horizontally just like regular web farms".
+/* This is the key, but where is the guidance?  How do I design stateless, but long running transactional systems? */
