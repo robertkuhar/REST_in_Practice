@@ -1,0 +1,245 @@
+Chapter 11: Web Services 
+
+SOAP-based Web Services were disruptive in 2000
+  - use of Internet protocol and XML independent of proprietary middleware
+  
+DCOM, RMI, CORBA
+  - standardized but loose enough that proprietary implementations were the norm
+
+Integration is today a commodity in that the tools are usually built into the Development Environments
+
+The Web Services buzz of 2000 "...did the community a huge service as they became part and parcel of modern development platforms and championed the notion of heterogenous interoperability".
+
+/* !HETEROGENOUS INTEROPERABILITY! */
+/* http://www.w3.org/2003/Talks/05-gartner-tbl/slide6-0.html Cool slide deck in the general vicinity of this topic */
+/* Better link showing current state of WS-* http://stackoverflow.com/questions/855282/what-is-meant-by-ws */
+/* This too http://wiki.apache.org/ws/StackComparison */
+
+SOAP is lightweight
+  - All it describes is an envelop and a processing model for transferring messages across a network
+  - SOAP itself does not address larger problems like Security or Transactions.
+  - SOAP also does not impose application-level semantics or messaging patterns (unlike plain-jane HTTP)
+
+SOAP Processing Model
+  SOAP Envelope
+    Headers
+    Data
+
+  SOAP Headers can be used for Transactions
+
+  SOAP binds to more than just HTTP (only HTTP sees wide use, however)
+
+  ALL Protocols are Transport Protocols as far as SOAP is concerned
+
+  P376:  "SOAP and WS-Addressing together provide the complete transport-independent, end-to-end model fro SOAP message processing"
+
+  SOAP messages can be routed throug intermediaries, which process SOAP headers as each message passes through
+    /* This, I did not know */
+  
+  P377:  "SOAP (plus WS-Addressing) is much more akin to Message-Oriented Middleware since it only defines an envelope and a means of transferring that envelope over the network....SOAP is a low-level messaging protocol that does not impose any application semantics on the transferred payloads, leaving the interpretation of messages to the services that receive them"
+  /* Unlike HTTP which is Application Level protocol and interpretation is limited to conventionally understood semantics */
+
+  P377:  "...web advocates are enraged that SOAP messages are tunneled through HTTP POST, which means the benefits of the existing web infrastructure (particularly caching) are lost."
+  /* Hmmm.  Caching is overrated (opinion) */
+
+The Envelope
+  Both SOAP and HTTP have an "envelope" with..
+    Headers or MetaData
+    Body or the Data payload
+
+  Headers
+    Serve similar function in both SOAP and HTTP
+
+  Body
+    P379:  "In the HTTP case, we're carrying resource state representations; with SOAP, we're carrying a payload that the interacting parties must interpret."
+    /* Hmmm.  I don't see any semantic difference around the "must interpret" comment.  Either way, the end-points are "interpreting" this stuff, no? */
+
+
+Intermediaries:
+  In HTTP, the Caches are the intermediaries
+  In SOAP, "nodes" are the intermediaries
+
+  /* I don't see whether it is common for the SOAP "nodes" to CHANGE THE ENVELOPE as it traverses the network.  I know in HTTP that this occurs (headers get injected, I've never seen them removed or changed, though) */
+
+  ! P379:  Note:  "The SOAP processing model treats all headers as equal and does not impose a processing order on them.  This allows any set of WS-* technologies to be cleanly interleaved without side effects.  But some technologies, such as WS-Security, have side effects, which means that the ordering of encryption/decryption operations is critical with respect to other headers in the same message.  In practice, this means adopting conventions outside the scope of the SOAP specification for ordering encryption and decryption of messages."
+
+Faults:
+  HTTP has just Status Code 4xx and 5xx
+    Helps applications make progress or take compensating action at each interaction
+
+  SOAP has just SOAP Fault
+    Identifies responsible party { Consumer, Service, Intermediary }
+    Also contains general information about why the fault happened
+    THERE IS NO STANDARD TO THESE CONTENTS
+      It is either up to the application to interpret the meaning
+      ...OR...
+      WS-Coordination
+
+  P380:  "While SOAP faults are widely used, they rarely convey SOAP processing faults as the name suggests.  Instead, they are often used to transfer programming exceptions between services and consumers.  In the process, encapsulation is broken and unhelpful internal implementation errors are delivered to a consumer that has no business knowing them."
+
+WSDL:  Just Another Object IDL
+  "...the outbreak of WS-Peace..." made me smile
+
+  P380:  "If there is complexity in the Web Services stack, it doesn’t come from SOAP."
+
+  He pins SOAP complexity onto WSDL.
+    P381:  "WSDL...a verbose object interface definition language (IDL), which forces an unsuitable RPC-like model of parameters, return values, and exceptions onto Web Services."
+    /* Don't all the Definition Languages do this though..."tight coupling between the service's contract and its implementation"?  Remember those JAXB Annotations?  Is it tight coupling, or "hack of least resistence"? */
+    /* By P382 he is discounting my "hack of least resistence" argument */
+
+  P382:  Note:  "Objects in a domain model usually make poor choices for integration points because their life cycles are bound by their service.  Not only do remote methods make for chatty interfaces that aren't efficient over a network, but they also introduce tight coupling."
+
+  P383:  "It's straightforward to design loosely coupled services by building a "service model" between the domain model and the framework code that connects services to the network".  /* Straightforward, yes, but efficent with regards to programming, I'm skeptical.  I think what he is saying is that you are ALWAYS doing interpretation and mapping between your Services layer and your Domain Model. */
+
+  Oh, that is exactly what he is saying..."The service model provides a faithful view of the underlying messaging behavior of the system so that we can explicitly code for high latencies and low reliability in the network.  It also provides a mechanism to map information from messages into and out of domain objects..."
+
+  P384:  "...we have an extra tier to build compared to the naive tool-generated approach, but the benefits of creating the service model tier are manifold:
+          1.  We explicitly decouple our external contract and internal domain model.
+          2.  We explicitly code for messages and so take time to understand the latencies and failure modes so that we can handle them gracefully and produce a robust service.
+          3.  Proper separation of concerns makes the codebase maintainable for the long term."
+
+/* I'm calling bullshit on "Changes to the domain model will not affect service consumers".  That is true only as long as Changes to the Domain Model are so trivial as to NEVER EVER BE REALIZED BY THE CLIENTS.  In my experience, this is NEVER THE CASE.  CHANGES IN THE DOMAIN MODEL ARE ALMOST ALWAYS THE RESULT OF SOME CLIENT FACING REQUIREMENT. */
+
+/* I didn't fully understand the Document/Literal vs RPC/Encoded rant on P384, but I think I agree.  They shouldn't have used "RPC" in there as it clouds the issue */
+
+P385:  "In hiding the remote aspects of a distributed system, we hide necessary complexity to the extent that we can't build services that are tolerant of their inherent latencies, failure characteristics, and ownership boundaries."
+
+P385:  "Using WSDL alone, it is extremely difficult to describe a protocol such as the coffee ordering domain application protocol (DAP) we built in Chapter 5."
+  /* REST wins here, why?  Because we have the URLs of all valid next operations within the current response block as links? */
+
+P386:  "WSDL makes doing the wrong things easy and makes doing the right things difficult, especially for frameworks that support WSDL generation from code (and vice versa)."
+
+P386:  Ooh, ooh, he's setting up to stick it to WADL as well!
+
+Yep, he don't like it...
+  1.  WADL takes a static view of the web application...
+  2.  WADL tooling promotes tight coupling of client and service-side abstractions...
+  3.  WADL offers no clues about ordering of interactions with resources it advertises.
+  4.  WADL often duplicates the metadata that is available from the resources themselves...
+
+
+Security (P388)
+  WS-Security allows the sender of a message to sign and/or encrypt any part or the whole of the outgoing message so that it can't be tampered with and/or read while it's in transit.
+  There are higher-order protocols for Domains of Trust, Credentials, and so on.
+
+  End-to-end model
+    The WS-Security components are based on Public Key Cryptography end-to-end
+    They are installed and configured inside a service's SOAP stack and are advertised in the WS-SecurityPolicy document in the service's WSDL
+
+    "WS-Security works at the transfer protocol (message) level rather than the transport protocol level, so confidentiality and tamper proofing are supported from the sender through to the ultimate recipient."
+      /* Transfer vs Transport Protocol:  http://agilearchitect.blogspot.com/2006/05/difference-between-transfer-and.html  "Transfer uses Transport" */
+
+    WS-Security doesn't have to be applied only at the SOAP envelope level...it can be applied to only parts of the message.  This allows headers to be seen and proce by the intermediaries.
+
+Securing long-lived conversations
+  - HTTPS overhead can be computationally expensive, which makes WS-Security costly for multiple message exchanges
+  - WS-SecureConversation
+    - Uses WS-Security to bootstrap a long conversation
+    - communicating services establish a shared key using a single public key exchange and then subsequently use that shared key to transfer multiple messages
+    - WS-SecureConversation allows for mutation of the key as each message is exchanged
+    - Figure 11-4 shows the exchange
+
+
+  WS-Trust
+    P391:  "At the heart of Web Services security is the notion of a token that represents a claim in respect to the sender's identity"
+    - defines extensions to WS-Security that provide methods for issuing, renewing, and validating security tokens
+    - provides ways to establish and broker trust relationships
+    
+    WS-Trust Security Token Service (STS)
+      - the cornerstone is the WS-Trust is the Security Token Service (STS)
+      - able to exchange tokens of one type (in the requesting service's domain) for appropriate tokens of another type (in the receiving service's domain)
+      - /* I like the sound of this one */
+
+      WS-Trust allows a Web Service to specify that an incoming message must provide a set of claims via its associated WS-Policy description
+        - "claims" are of the type name, key, permission, capability, et
+      If the requesting service doesn't have the necessary token to support the required claims for the Web Service, it can contact the STS which the Web Service refers to in its WS-Policy description to request the tokens
+
+Federating Identities
+  Federated Identity allows Services in one organization to access Web Services in other organizations using local credentials to access the remote services
+  
+  WS-Federation
+    WS-Trust establishes identity locally
+    WS-Security allows the local identity to be used as a foreign identity on remote calls
+    The remote service asks its local identity provider to authenticate the sender using its local WS-Trust STS
+
+    P393:  "This pattern, where a receiving service calls back to an identity provider, has the benefit that the credentials are only stored in and validate at a single authority.  If business partnerships change and Web services from Domain A are no longer to be serviced, only the STS in Domain B needs to be updated, which reduces cost and complexity in operations."
+
+  The WS-Security stack
+    /* Hmmm.  He seems to take issue not with the capability of the stack, but with how it hides it implementation on P393 */
+
+
+  WS-Security makes HTTPS seem "pitiful".
+
+  Federated authentication on the Web
+    - The Web community has just begun work here
+    - OpenID seems to have captured the zeitgeist for Identity
+      /* Here is something I missed when we discussed this in CH09, P394 "...provided the service trusts the provider."  In other words, not all OpenID providers are equal, or it is up to your Service to decide which one(s) you will trust. */
+    - OAuth (Open Authentication) for Authentication
+
+Reliable Messaging
+  WS-ReliableMessaging (WS-RM)
+    - 4 schemes for reducing message delivery errors between Web Services
+        1. AT MOST once
+           Dups will not be delivered, messages may be dropped
+        2. AT LEAST once
+           Every message will be delivered, but dups may occur
+        3. EXACTLY ONCE
+           Every message will be delivered once, no dups
+        4. IN ORDER
+           Messages will be received in the same order they were sent
+    - A Service WS-RM policy makes it into its WS-Policy document in the WSDL
+    /* I find the P396 statement "...the consumer may request an acknowledgement of the re-sent (and any other) message too, and may persiste outgoing messages ready for retransmission in the event of a failure" interesting.  Does this commit the receiver to persist the "received" status of every message?  Can you do this will just sequence counters?  This feels very stateful. */
+
+  IN ORDER is baked into HTTP
+  AT MOST, AT LEAST, and EXACTLY ONCE are effectively collapsed into EXACTLY ONCE
+  The key is the idempotent verbs in HTTP
+
+  POST fucks this up.
+    HTTP status code to the rescue, with server-side state erroring out on duplicate requests
+
+
+Transactions
+  Coordination/Transaction protocols allow all parties to gain a consensus view of an actions outcome
+  In distributed systems, these are the 2-phase commits
+
+  Web Services have competing standards
+    Business Transaction Protocol
+    WS-CAF
+    WS-BusinessActivity protocol (widely accepted)
+    - NONE OF THESE ARE ACID (WTF?) see NOTE on P400.
+
+  Web Transactions
+    /* He doesn't believe two-phase commit is necessary */
+    /* It sounds like there is no standard beyond ad-hoc protocol based upon common understanding of a Header like "Transaction-Id" */
+    
+
+HERE COMES CONTROVERSY...
+  P403:  "the Web tends to have its own answer to enterprise problems, and as it happens transactions aren't necessary when dealing with web-based services."
+
+  /* He seems to say "it is entirely up to the Client to decide what a transaction means */
+
+  P404:  "Don't be tempted to involve consumers in your transactions by allowing such life-cycle information to leak past your service boundary."
+
+  /* I am confused as to how Figure 11-16 can work WITHOUT my client having some "state" given to it that represents my Transaction ID.  It can't help but leak out, can it? */
+
+
+A Requiem for Web Services
+  /* It sounds like he is saying that the Web RESTful solutions aren't as standardized as their WS-* counterparts, but that doesn't mean that they can't be built.  He really, really, hates WSDL and will throw the baby out with the bathwater because of it. */
+
+
+Chapter 12:  Building the Case for the Web
+
+P408:  "The middleware that we use to deliver web-based systems is mature.  Web servers, caches, and proxy servers...don't require product specialists to build, configure, and run them" /* I call bullshit.  Specialists are still needed, its just the number of variants are shrinking. */
+
+I think I have to agree with the "Frameworks maturity" statement on P408.  "...developing testable, modular software (influenced by the success of Ruby on Rails and the like), development tends to be rapid, incremental, low-risk..."
+  
+P409:  "A web-based system designed in the absence of careful measurements and empirical data is as likely to fail as any other solution designed without diligence...the Web offers visibility, which supports effective planning and design"
+
+/* I like this statement. */
+
+P409:  "While delegating responsibility for so-called "heavy lifting" to middleware services is appealing, it is misguided since it encourages us to ignore fundamental design considerations and trust an unknown black box."
+
+/* I HATE this statement.  Further, it is counter to his earlier assertions of commodity web-servers blah, blah, blah.  Aren't these things "black boxes"?  Is this a "Invent everything" view of the world?  The Rails folks didn't make the splash that they did by making everyone invent everything.  Nor did the J2EE stack.  "On the shoulders of giants" is, to me, the lesson to be learned from the industry's move to the Web */
+
+P411:  "Since good services are built to be stateless, they can scale horizontally just like regular web farms".
+/* This is the key, but where is the guidance?  How do I design stateless, but long running transactional systems? */
